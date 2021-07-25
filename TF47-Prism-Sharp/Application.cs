@@ -6,9 +6,11 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Extensions.Http;
 using TF47_Prism_Sharp.Models;
+using TF47_Prism_Sharp.Services;
 
 namespace TF47_Prism_Sharp
 {
@@ -35,6 +37,8 @@ namespace TF47_Prism_Sharp
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetRetryPolicy());
+            services.AddScoped<ApiClient>();
+            services.AddSingleton<MediatorService>();
             ServiceProvider = services.BuildServiceProvider();
         }
 
