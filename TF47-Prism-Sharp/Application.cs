@@ -1,7 +1,9 @@
 using System;
 using System.Buffers.Text;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -32,10 +34,9 @@ namespace TF47_Prism_Sharp
             services.AddHttpClient("api", c =>
                 {
                     c.BaseAddress = new Uri(Configuration.BaseUrl);
-                    c.DefaultRequestHeaders.Add("Content-Type", "application/json");
+                    c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     c.DefaultRequestHeaders.Add("TF47AuthKey", Configuration.ApiKey);
                 })
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetRetryPolicy());
             services.AddScoped<ApiClient>();
             services.AddSingleton<MediatorService>();
@@ -48,7 +49,7 @@ namespace TF47_Prism_Sharp
             if (!File.Exists(settingsFile))
                 throw new FileNotFoundException($"settings.json could not be found. Path: {settingsFile}");
             var json = File.ReadAllText(settingsFile, Encoding.UTF8);
-            var settings = JsonSerializer.Deserialize<SettingsJson>(json);
+            var settings = JsonSerializer.Deserialize<SettingsJson>(json) ?? new SettingsJson();
             Configuration.ApiKey = settings.ApiKey;
             Configuration.BaseUrl = settings.Hostname;
         }
