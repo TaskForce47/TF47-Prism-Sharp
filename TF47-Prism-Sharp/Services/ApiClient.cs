@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using TF47_Prism_Sharp.Models.Api;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace TF47_Prism_Sharp.Services
 {
@@ -39,7 +40,7 @@ namespace TF47_Prism_Sharp.Services
         public async Task<bool> CreateUserAsync(string playerUid, string playerName, CancellationToken cancellationToken)
         {
             var route = "/api/player";
-            var request = JsonSerializer.Serialize(new
+            var request = JsonSerializer.Serialize(new CreatePlayerRequest
             {
                 PlayerUid = playerUid,
                 PlayerName = playerName
@@ -47,7 +48,8 @@ namespace TF47_Prism_Sharp.Services
             try
             {
                 var response =
-                    await _client.PostAsync(route, new StringContent(request, Encoding.UTF8), cancellationToken);
+                    await _client.PostAsync(route, new StringContent(request, Encoding.UTF8, "application/json"),
+                        cancellationToken);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -61,23 +63,23 @@ namespace TF47_Prism_Sharp.Services
         public async Task<int> CreateSessionAsync(string worldName, string missionType, int missionId,
             CancellationToken cancellationToken)
         {
-            var route = "/api/session";
-            var request = JsonSerializer.Serialize(new
+            var route = "/api/Session";
+            var request = JsonSerializer.Serialize(new CreateSessionRequest
             {
                 MissionId = missionId,
                 MissionType = missionType,
                 WorldName = worldName
             });
-
+            Console.WriteLine(request);
             try
             {
                 var response =
-                    await _client.PostAsync(route, new StringContent(request, Encoding.UTF8), cancellationToken);
+                    await _client.PostAsync(route, new StringContent(request, Encoding.UTF8, "application/json"),
+                        cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
-                    var sessionResponse = await JsonSerializer.DeserializeAsync<SessionResponse>(
-                        await response.Content.ReadAsStreamAsync(cancellationToken),
-                        cancellationToken: cancellationToken);
+                    var sessionResponse = JsonConvert.DeserializeObject<SessionResponse>(
+                        await response.Content.ReadAsStringAsync(cancellationToken));
                     Configuration.SessionId = sessionResponse.SessionId;
                     return sessionResponse.SessionId;
                 }
@@ -89,11 +91,30 @@ namespace TF47_Prism_Sharp.Services
             return -1;
         }
 
-        public async Task<bool> UpdateTicketCount(string playerUid, int ticketChange, int ticketCountNew,
+        public async Task<bool> EndSessionAsync(CancellationToken cancellationToken)
+        {
+            if (Configuration.SessionId == -1) return true;
+            var route = $"/api/Session/{Configuration.SessionId}/endsession";
+
+            try
+            {
+                var response = await _client.PutAsync(route, new StringContent("", Encoding.UTF8, "application/json"),
+                    cancellationToken);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to stop current session: {ex.Message}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> UpdateTicketCountAsync(string playerUid, int ticketChange, int ticketCountNew,
             string message, CancellationToken cancellationToken)
         {
             var route = $"/api/ticket/{Configuration.SessionId}";
-            var request = JsonSerializer.Serialize(new
+            var request = JsonSerializer.Serialize(new TicketUpdateRequest
             {
                 PlayerUid = playerUid,
                 TicketChange = ticketChange,
@@ -103,7 +124,8 @@ namespace TF47_Prism_Sharp.Services
 
             try
             {
-                var response = await _client.PostAsync(route, new StringContent(request), cancellationToken);
+                var response = await _client.PostAsync(route,
+                    new StringContent(request, Encoding.UTF8, "application/json"), cancellationToken);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -123,10 +145,8 @@ namespace TF47_Prism_Sharp.Services
                 var response = await _client.GetAsync(route, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
-                    var result =
-                        await JsonSerializer.DeserializeAsync<PlayerWhitelistingResponse>(
-                            await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
-
+                    var result = JsonConvert.DeserializeObject<PlayerWhitelistingResponse>(await response.Content.ReadAsStringAsync(cancellationToken));
+                    
                     if (result?.Whitelistings == null)
                     {
                         Console.WriteLine($"Failed to fetch permissions! Empty response for playerUid: {playerUid}");

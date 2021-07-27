@@ -20,7 +20,8 @@ namespace TF47_Prism_Sharp.Models.Api
         [JsonPropertyName("timeSessionCreated")]
         public DateTime TimeSessionCreated { get; set; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         [JsonPropertyName("timeSessionEnded")]
-        public DateTime TimeSessionEnded { get; set; }
+        public DateTime? TimeSessionEnded { get; set; }
     }
 }
