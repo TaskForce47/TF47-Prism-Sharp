@@ -31,6 +31,6 @@ namespace TF47_Prism_Sharp.Helper
         }
 
         public int Count => _queue.Count;
-        public bool IsEmpty => _queue.Count > 0;
+        public bool IsEmpty => _queue.Count == 0;
     }
 }
