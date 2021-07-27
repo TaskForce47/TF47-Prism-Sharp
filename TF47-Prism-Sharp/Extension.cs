@@ -10,7 +10,7 @@ using TF47_Prism_Sharp.Services;
 
 namespace TF47_Prism_Sharp
 {
-    public class Extension
+    public static class Extension
     {
         private static MediatorService _mediatorService;
         
@@ -26,22 +26,32 @@ namespace TF47_Prism_Sharp
         [UnmanagedCallersOnly(EntryPoint = "RVExtension")]
         public static unsafe void RVExtension(char* output, int outputSize, char* function)
         {
-            string parameter = Marshal.PtrToStringAnsi((IntPtr)function);
+            var method = Marshal.PtrToStringAnsi((IntPtr)function) ?? "";
+
+            var result = "";
+            switch (method)
+            {
+                case "endSession":
+                    result = _mediatorService.EndSession().ToString();
+                    break;
+                default:
+                    result = "Method not implemented";
+                    break;
+            }
             
-            byte[] byteFinalString = Encoding.ASCII.GetBytes("finalString");
+            byte[] byteFinalString = Encoding.ASCII.GetBytes(result);
             Marshal.Copy(byteFinalString,0,(IntPtr)output,byteFinalString.Length);
         }
 
         [UnmanagedCallersOnly(EntryPoint = "RVExtensionArgs")]
         public static unsafe void RVExtensionArgs(char* output, int outputSize, char* function, char** argv, int argc)
         {
-            //Let's grab the string from the pointer passed from the Arma call to our extension
-            //Note the explicit cast
-            string method = Marshal.PtrToStringAnsi((IntPtr)function);
+            var method = Marshal.PtrToStringAnsi((IntPtr)function) ?? "";
 
             var parameters = new List<string>();
             for (int i=0; i<argc; i++) {
                 var tmp = Marshal.PtrToStringAnsi((IntPtr)argv[i]) ?? "";
+                tmp = tmp.Replace("\"", "");
                 parameters.Add(tmp);
             }
 
@@ -50,25 +60,27 @@ namespace TF47_Prism_Sharp
             switch (method)
             {
                 case "createSession":
-                {
-                    break;   
-                }
+                    result = _mediatorService.CreateSession(parameters[0], parameters[1], int.Parse(parameters[2])).ToString();
+                    break;
                 case "endSession":
-                {
+                    result = _mediatorService.EndSession().ToString();
                     break;
-                }
                 case "updateTicketCount":
-                {
+                    _mediatorService.UpdateTicketCount(Convert.ToInt32(parameters[0]), Convert.ToInt32(parameters[1]), parameters[2],
+                        parameters[3]);
+                    result = "200";
                     break;
-                }
                 case "getPlayerPermissions":
-                {
+                    _mediatorService.UpdatePlayerPermissions(parameters[0]);
+                    result = "200";
                     break;
-                }
+                case "createPlayer":
+                    _mediatorService.CreateUser(parameters[0], parameters[1]);
+                    result = "200";
+                    break;
                 default:
-                {
                     result = "Method not implemented";
-                }
+                    break;
             }
             
             byte[] byteFinalString = Encoding.ASCII.GetBytes(result);
@@ -83,10 +95,8 @@ namespace TF47_Prism_Sharp
 
             var scope = Application.ServiceProvider.CreateScope();
             _mediatorService = scope.ServiceProvider.GetRequiredService<MediatorService>();
-            
-            var assembly = Assembly.GetExecutingAssembly();
-            var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-            var versionString = fileVersionInfo.ProductVersion ?? "Unknown";
+
+            var versionString = "0.2"; 
             
             byte[] byteFinalString = Encoding.ASCII.GetBytes(versionString);
             Marshal.Copy(byteFinalString,0,(IntPtr)output,byteFinalString.Length);
