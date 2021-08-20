@@ -2,6 +2,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF47-Prism-Sharp", "TF47-Prism-Sharp\TF47-Prism-Sharp.csproj", "{EF851A3C-D826-476D-859B-BAD5C49BF831}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF47-Prism-Sharp-Client", "TF47-Prism-Sharp-Client\TF47-Prism-Sharp-Client.csproj", "{D9C27B60-8B5A-44CC-B998-0FDC618FFE5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF47-Prism-Sharp-Dependencies", "TF47-Prism-Sharp-Dependencies\TF47-Prism-Sharp-Dependencies.csproj", "{CC362282-F7F9-42AE-84EC-C6E2BCA8CE66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF47-Prism-Mediator-Server", "TF47-Prism-Mediator-Server\TF47-Prism-Mediator-Server.csproj", "{794369D2-AECB-478E-9A6B-A2CF3750BE58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -11,5 +17,17 @@ Global
 		{EF851A3C-D826-476D-859B-BAD5C49BF831}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF851A3C-D826-476D-859B-BAD5C49BF831}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EF851A3C-D826-476D-859B-BAD5C49BF831}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9C27B60-8B5A-44CC-B998-0FDC618FFE5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9C27B60-8B5A-44CC-B998-0FDC618FFE5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9C27B60-8B5A-44CC-B998-0FDC618FFE5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9C27B60-8B5A-44CC-B998-0FDC618FFE5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC362282-F7F9-42AE-84EC-C6E2BCA8CE66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC362282-F7F9-42AE-84EC-C6E2BCA8CE66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC362282-F7F9-42AE-84EC-C6E2BCA8CE66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC362282-F7F9-42AE-84EC-C6E2BCA8CE66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{794369D2-AECB-478E-9A6B-A2CF3750BE58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{794369D2-AECB-478E-9A6B-A2CF3750BE58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{794369D2-AECB-478E-9A6B-A2CF3750BE58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{794369D2-AECB-478E-9A6B-A2CF3750BE58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
