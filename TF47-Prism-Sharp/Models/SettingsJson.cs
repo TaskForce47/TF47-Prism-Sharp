@@ -4,5 +4,6 @@ namespace TF47_Prism_Sharp.Models
     {
         public string ApiKey { get; set; }
         public string Hostname { get; set; }
+        public string SecretChallenge { get; set; }
     }
 }

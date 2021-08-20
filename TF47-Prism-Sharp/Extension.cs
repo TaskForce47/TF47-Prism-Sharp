@@ -71,7 +71,7 @@ namespace TF47_Prism_Sharp
                     result = "200";
                     break;
                 case "getPlayerPermissions":
-                    _mediatorService.UpdatePlayerPermissions(parameters[0]);
+                    _mediatorService.UpdatePlayerPermissions(parameters[0], bool.Parse(parameters[1]));
                     result = "200";
                     break;
                 case "createPlayer":

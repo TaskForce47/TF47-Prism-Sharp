@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -18,10 +17,12 @@ namespace TF47_Prism_Sharp
 {
     public static class Configuration
     {
-        public static string ApiKey = String.Empty;
-        public static string BaseUrl = String.Empty;
-        public static string MissionId = String.Empty;
+        public static string ApiKey = string.Empty;
+        public static string BaseUrl = string.Empty;
+        public static string MissionId = string.Empty;
         public static int SessionId = -1;
+        public static int ListeningPort = 6060;
+        public static string Challenge = string.Empty;
     }
 
     public static class Application
@@ -40,6 +41,7 @@ namespace TF47_Prism_Sharp
                 .AddPolicyHandler(GetRetryPolicy());
             services.AddScoped<ApiClient>();
             services.AddSingleton<MediatorService>();
+            services.AddSingleton<Services.DataServer>();
             ServiceProvider = services.BuildServiceProvider();
         }
 

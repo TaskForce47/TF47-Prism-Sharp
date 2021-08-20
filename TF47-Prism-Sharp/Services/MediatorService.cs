@@ -10,12 +10,14 @@ namespace TF47_Prism_Sharp.Services
     public class MediatorService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ThreadSafeQueue<string> _whitelistUpdateRequests = new();
+        private readonly DataServer _dataServer;
+        private readonly ThreadSafeQueue<(string, bool)> _whitelistUpdateRequests = new();
         private readonly CancellationTokenSource _backgroundWorkerToken = new();
 
-        public MediatorService(IServiceProvider serviceProvider)
+        public MediatorService(IServiceProvider serviceProvider, DataServer dataServer)
         {
             _serviceProvider = serviceProvider;
+            _dataServer = dataServer;
             Task.Run(async () => { await RunBackgroundTask(_backgroundWorkerToken.Token); }).ConfigureAwait(false);
         }
 
@@ -24,13 +26,18 @@ namespace TF47_Prism_Sharp.Services
             _backgroundWorkerToken.Cancel();
         }
 
-        public void UpdatePlayerPermissions(string playerUid)
+        public void ClientConnected(string ownerId)
+        {
+            
+        }
+        
+        public void UpdatePlayerPermissions(string playerUid, bool firstLoad)
         {
             //max wait 100ms to enqueue task to prevent notable server freezing
             CancellationTokenSource cts = new(TimeSpan.FromMilliseconds(100));
             try
             {
-                _whitelistUpdateRequests.EnqueueAsync(playerUid, cts.Token).Wait();
+                _whitelistUpdateRequests.EnqueueAsync((playerUid, firstLoad), cts.Token).Wait();
             }
             catch
             {
@@ -42,6 +49,7 @@ namespace TF47_Prism_Sharp.Services
         {
             Task.Run(async ()=>
             {
+                
                 var scope = _serviceProvider.CreateScope();
                 var apiClient = scope.ServiceProvider.GetRequiredService<ApiClient>();
                 
@@ -79,7 +87,7 @@ namespace TF47_Prism_Sharp.Services
                 var scope = _serviceProvider.CreateScope();
                 var apiClient = scope.ServiceProvider.GetRequiredService<ApiClient>();
 
-                if (await apiClient.CheckUserExistsAsync(playerUid, _backgroundWorkerToken.Token))
+                if (!await apiClient.CheckUserExistsAsync(playerUid, _backgroundWorkerToken.Token))
                 {
                     await apiClient.CreateUserAsync(playerUid, username, _backgroundWorkerToken.Token);
                 }
@@ -95,10 +103,10 @@ namespace TF47_Prism_Sharp.Services
                 await Task.Delay(1000, cancellationToken);
                 while (!_whitelistUpdateRequests.IsEmpty && !cancellationToken.IsCancellationRequested)
                 {
-                    var playerUid = await _whitelistUpdateRequests.DequeueAsync(cancellationToken);
+                    var item = await _whitelistUpdateRequests.DequeueAsync(cancellationToken);
                     var playerWhitelist =
-                        (await apiClient.GetPlayerWhitelisting(playerUid, cancellationToken)).ToArmaArray();
-                    playerWhitelist = $"[{playerUid}, {playerWhitelist}]"; 
+                        (await apiClient.GetPlayerWhitelisting(item.Item1, cancellationToken)).ToArmaArray();
+                    playerWhitelist = $"[\"{item.Item1}\",{item.Item2},{playerWhitelist}]"; 
 
                     //arma allows a max of 99 callbacks per frame
                     //-1 notifies the callback queue is full
