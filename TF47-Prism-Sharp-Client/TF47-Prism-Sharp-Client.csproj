@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>TF47_Prism_Sharp_Client</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TF47-Prism-Sharp-Dependencies\TF47-Prism-Sharp-Dependencies.csproj" />
+    </ItemGroup>
+
+</Project>
